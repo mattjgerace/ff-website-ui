@@ -522,8 +522,8 @@ const sortBackup = (a: lbdataInfo, b:lbdataInfo, primaryColumnName: keyof lbdata
         <td>{{ (props.ppg) ? calcPointsPer(row, validate(row.pa)) : Number(validate(row.pa)).toFixed(2)  }}</td>
         <td>{{ (props.ppg) ? addSign(Number(calcPointsPer(row, (validate(row.pf) - validate(row.pa))))) : addSign((validate(row.pf)- validate(row.pa))) }}</td>
         <td>{{ validate(row.weeks_won) }}</td>
-        <td>{{ validate(row.seed) }}</td>
-        <td>{{ validate(row.draft_pick) }}</td>
+        <td>{{ validate(row.seed) == 0 ? "-" : validate(row.seed)}}</td>
+        <td>{{ validate(row.draft_pick) == 0 ? "-" : validate(row.draft_pick) }}</td>
       </tr>
     </tbody>
   </table>

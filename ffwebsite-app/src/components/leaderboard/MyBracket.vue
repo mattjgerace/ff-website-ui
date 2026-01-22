@@ -66,11 +66,24 @@ function buildBracket(matchupsdata_value: mdataInfo[]) {
   if (tabledata.value != null) {
     //let reseed = true;
     let bracket : (lbdataInfo | undefined)[][][] = [[[], [], [], []], [[], []], [[]]];
+    let team_counter = 0;
     tabledata.value.forEach((team: lbdataInfo) => {
-        if (team.seed <= team_num) {
+        if (team.seed <= team_num && team.seed != null) {
           teamMap.set(team.seed, team)
           scoreMap.set(team.team_id, new Map<number, number>())
         }
+        else {
+          let null_team: lbdataInfo = {
+                team_id: 0,
+                full_name: ' ',
+                standing: 0,
+                seed: team_num - team_counter,
+            };
+          if (team_counter < team_num) {
+            teamMap.set(team_num - team_counter, null_team)
+          }
+        }
+        team_counter++
     });
 
     matchupsdata_value.forEach((matchup: mdataInfo) => {
