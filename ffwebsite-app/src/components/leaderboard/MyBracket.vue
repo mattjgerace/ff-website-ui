@@ -42,17 +42,20 @@ interface mdataInfo {
   opp_score: number,
 }
 
+interface sdataInfo {
+  playoff_team_num: number,
+  playoff_week_start: number
+}
+
 const tabledata: Ref<Array<lbdataInfo> | null> = ref(null);
 const bracketdata: Ref<any | null> = ref(null);
-const settingdata: Ref<Array<any> | null> = ref(null);
+const settingsdata: Ref<Array<sdataInfo> | null> = ref(null);
+const playoff_team_num = ref(0);
+const playoff_week_start = ref(0);
 const matchupsdata: Ref<Array<mdataInfo> | null> = ref(null);
 
 const teamMap = new Map<number, lbdataInfo>();
 const scoreMap = new Map<number, Map<number, number>>();
-
-let team_num = 6
-let playoff_week_start = 15
-
 
 onMounted(() => {
   ffWebsiteAPI.ready = new Promise(resolve => {
@@ -66,6 +69,7 @@ function buildBracket(matchupsdata_value: mdataInfo[]) {
   if (tabledata.value != null) {
     //let reseed = true;
     let bracket : (lbdataInfo | undefined)[][][] = [[[], [], [], []], [[], []], [[]]];
+    let team_num = playoff_team_num.value
     let team_counter = 0;
     tabledata.value.forEach((team: lbdataInfo) => {
         if (team.seed <= team_num && team.seed != null) {
@@ -127,7 +131,11 @@ async function fetchBracket() {
       const leaderboard_response = await ffWebsiteAPI.getLeaderboard(props.year);
       tabledata.value = leaderboard_response;
       const settings_response = await ffWebsiteAPI.getSettings(props.year);
-      settingdata.value = settings_response[0];
+      settingsdata.value = settings_response;
+      if (settingsdata.value != null) {
+        playoff_team_num.value = settingsdata.value[0].playoff_team_num
+        playoff_week_start.value = settingsdata.value[0].playoff_week_start
+      }
       const matchups_response = await ffWebsiteAPI.getMatchups(props.year, null, null, 1)
       matchupsdata.value = matchups_response;
       await nextTick()
@@ -153,8 +161,8 @@ function findScore(team1: lbdataInfo | undefined, team2: lbdataInfo | undefined,
       var team = teamMap.get(team1.seed)
       if (team != undefined) {
         var team_scores = scoreMap.get(team.team_id)
-        if (team_scores != undefined && team_scores.has(playoff_week_start+round_index)) {
-          return Number((team_scores?.get(playoff_week_start+round_index)))?.toFixed(2)
+        if (team_scores != undefined && team_scores.has(playoff_week_start.value+round_index)) {
+          return Number((team_scores?.get(playoff_week_start.value+round_index)))?.toFixed(2)
         }
       }
     }
