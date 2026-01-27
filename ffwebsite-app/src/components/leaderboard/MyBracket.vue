@@ -66,7 +66,7 @@ onMounted(() => {
 });
 
 function buildBracket(matchupsdata_value: mdataInfo[]) {
-  if (tabledata.value != null) {
+  if (tabledata.value != null && tabledata.value.length > 0) {
     //let reseed = true;
     let bracket : (lbdataInfo | undefined)[][][] = [[[], [], [], []], [[], []], [[]]];
     let team_num = playoff_team_num.value
@@ -122,6 +122,9 @@ function buildBracket(matchupsdata_value: mdataInfo[]) {
       }
     }
     return bracket
+  }
+  else if (tabledata.value != null && tabledata.value.length == 0) {
+    return null
   }
 }
 

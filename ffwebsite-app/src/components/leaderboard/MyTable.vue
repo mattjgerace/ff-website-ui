@@ -5,8 +5,8 @@ import {ref, nextTick, watch, Ref } from 'vue'
 import { onMounted } from 'vue'
 import ffWebsiteAPI from '../../services/ff-website-api'
 
-const props = defineProps(['year', 'lowerWeek', 'higherWeek', 'stat', 'ppg', 'per'])
-const emit = defineEmits<{(e: 'update-values', values: { stat?: string; lowerWeek?: number; higherWeek?: number }): void;}>();
+const props = defineProps(['year', 'lowerWeek', 'higherWeek', 'playoffWeek', 'maxHighWeek', 'stat', 'ppg', 'per'])
+const emit = defineEmits<{(e: 'update-values', values: { stat?: string; lowerWeek?: number; higherWeek?: number; maxHighWeek?: number; }): void;}>();
 
 
 interface lbdataInfo {
@@ -39,6 +39,7 @@ interface lbdataInfo {
 interface mdataInfo {
   team_id: number,
   season: number,
+  week: number,
   playoff: boolean,
   first_name: string,
   last_name: string,
@@ -72,7 +73,6 @@ async function fetchLeaderboard() {
       }
       await nextTick()
       //console.log(tabledata.value)
-
     }
     catch (e) {
       console.log(e)
@@ -91,8 +91,7 @@ async function fetchMatchups() {
             stat = 1; 
             break; 
         } 
-        default: { 
-            stat = null; 
+        default: {
             break; 
         } 
       }
@@ -188,9 +187,14 @@ function processMatchupDataAllTime(matchupsdata_value: mdataInfo[], tabledata_va
 
 function processMatchupDataYear(matchupsdata_value: mdataInfo[], tabledata_value:lbdataInfo[]) {
   let teamMap = new Map<number, Map<string, number>>();
+  var weeks: Array<number> = []
   matchupsdata_value.forEach(matchup => {
     if (!teamMap.has(matchup.team_id)) {
+      console.log(matchup.team_id)
       teamMap.set(matchup.team_id, new Map<string, number>([["pf", 0.00], ["pa", 0.00], ["wins", 0], ["losses", 0], ["ties", 0]]))
+    }
+    if (!weeks.includes(matchup.week)) {
+      weeks.push(matchup.week)
     }
     var team = teamMap.get(matchup.team_id)
     if (team != undefined) {
@@ -207,6 +211,8 @@ function processMatchupDataYear(matchupsdata_value: mdataInfo[], tabledata_value
       team.set("ties", ties)
     }
   });
+
+  //emit('update-values', {maxHighWeek: Math.max(...weeks)},)
 
   tabledata_value.forEach(lb => {
     var team = teamMap.get(lb.team_id)
@@ -250,37 +256,37 @@ async function processColName (ppg: string | undefined, per: string | undefined)
 }
 
  function adjustStatOptions(low: number, high: number) {
-  if (low < 15 && high > 14 && high !== 100) {
+  if (low < props.playoffWeek && high > props.playoffWeek-1 && high !== 100) {
     emit('update-values', {stat: "Combined"});
   }
-  else if (low > 14 && high > 14) {
+  else if (low > props.playoffWeek-1 && high > props.playoffWeek-1) {
     emit('update-values', {stat: "Postseason"});
   }
-  else if ((low < 15 && high < 15) || (low < 15 && high == 100)) {
+  else if ((low < props.playoffWeek && high < props.playoffWeek) || (low < props.playoffWeek && high == 100)) {
     emit('update-values', {stat: "Regular Season"});
   }
 }
 
 function adjustWeekOptions(stat: string) {
-  switch(stat) { 
+  switch(stat) {
         case ("Regular Season"): { 
             emit('update-values', {
               lowerWeek: 1,
-              higherWeek: 14,
+              higherWeek: props.playoffWeek-1,
             });
             break;
         }
         case ("Postseason"): { 
             emit('update-values', {
-              lowerWeek: 15,
-              higherWeek: 17,
+              lowerWeek: props.playoffWeek,
+              higherWeek: props.playoffWeek+2,
             });
             break;
         } 
         default: {  
             emit('update-values', {
               lowerWeek: 1,
-              higherWeek: 17,
+              higherWeek: props.playoffWeek+2,
             });
             break; 
         } 
@@ -295,16 +301,14 @@ async ([newStat, newLow, newHigh], [oldStat, oldLow, oldHigh]) => {
 
   internalUpdate = true;
 
-  if (oldStat != newStat) {
-    adjustWeekOptions(newStat)
-  }
-
   if (oldLow != newLow) {
     adjustStatOptions(newLow, props.higherWeek)
   }
-
-  if (oldHigh != newHigh) {
+  else if (oldHigh != newHigh) {
     adjustStatOptions(props.lowerWeek, newHigh)
+  }
+  else {
+    adjustWeekOptions(newStat)
   }
 
   await nextTick();
