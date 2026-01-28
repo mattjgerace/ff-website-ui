@@ -1,43 +1,102 @@
 <script setup lang="ts">
 
-import { ref, shallowRef, watch } from 'vue'
+import {nextTick, ref, shallowRef, watch} from 'vue'
 import MyTable from './MyTable.vue';
 import MyBracket from './MyBracket.vue';
 import MyDraft from './MyDraft.vue';
 
 import { onMounted } from 'vue'
+import ffWebsiteAPI from "@/services/ff-website-api";
 // import ffWebsiteAPI from '../../services/ff-website-api'
 
 onMounted(() => {
-console.log("Leaderboard is mounted")
+  ffWebsiteAPI.ready = new Promise(resolve => {
+      ffWebsiteAPI.resolver = resolve;
+  });
+  ffWebsiteAPI.resolver(1)
+  fetchSettings();
+  console.log("Leaderboard is mounted")
 });
 
 const tables = [
-  { name: 'MyTable', comp: MyTable }, 
+  { name: 'MyTable', comp: MyTable },
   { name: 'MyDraft', comp: MyDraft },
   { name: 'MyBracket', comp: MyBracket },
 ]
+
+interface selectdataInfo {
+    select: string,
+}
+
+interface settingsInfo {
+    season: string,
+    playoff_week_start: number,
+}
 
 const per = ref(false)
 const ppg = ref(false)
 
 const currentYear = ref("Year:");
 const currentStat = ref("Regular Season");
+const playoffWeek = ref(0);
+const maxHighWeek = ref(17);
 const currentLowWeek = ref(1);
 const currentHighWeek = ref(14);
 
-function updateValues(payload: { stat?: string; lowerWeek?: number; higherWeek?: number }) {
-  if (payload.stat !== undefined) currentStat.value = payload.stat;
-  if (payload.lowerWeek !== undefined) currentLowWeek.value = payload.lowerWeek;
-  if (payload.higherWeek !== undefined) currentHighWeek.value = payload.higherWeek;
-}
-
 let currentTable = shallowRef(tables[0]);
 
+let activeColor = ref('white')
 let avg = shallowRef('Total Points');
 let perc = shallowRef('Record');
 let avgWidth = ref('126px')
 let percWidth = ref('90px')
+
+let yearoptions = ref<Array<selectdataInfo | null>>([{select: "All Time"}])
+let weekoptions = ref<Array<selectdataInfo | null>>([])
+
+let seasonsettings = new Map<string, settingsInfo>()
+
+let statsoptions: Array<selectdataInfo> = [
+  {select: "Regular Season"},
+  {select: "Postseason"},
+  {select: "Combined"}
+]
+
+async function fetchSettings() {
+    try {
+      //yearoptions.value.push({select: "2019"})
+      const response = await ffWebsiteAPI.getSettings(currentYear.value);
+      for (let i=0; i<response.length; i++) {
+        seasonsettings.set(response[i].season, response[i])
+      }
+      seasonsettings.forEach((value: settingsInfo, key: string) => {
+        yearoptions.value.push({select: key})
+      });
+
+      await nextTick()
+      //console.log(tabledata.value)
+    }
+    catch (e) {
+      console.log(e)
+    }
+}
+
+async function getSettings(year: string) {
+      weekoptions.value = [];
+      playoffWeek.value = seasonsettings.get(year).playoff_week_start;
+
+      for (let i=0; i<playoffWeek.value+2; i++) {
+        weekoptions.value.push({select: (i + 1).toString()})
+      }
+      await nextTick()
+}
+
+function updateValues(payload: { stat?: string; lowerWeek?: number; higherWeek?: number; maxHighWeek?: number }) {
+  if (payload.stat !== undefined) currentStat.value = payload.stat;
+  if (payload.lowerWeek !== undefined) currentLowWeek.value = payload.lowerWeek;
+  if (payload.higherWeek !== undefined) currentHighWeek.value = payload.higherWeek;
+  if (payload.maxHighWeek !== undefined) maxHighWeek.value = payload.maxHighWeek;
+}
 
 watch(() => currentYear.value, (newYear) => {
   if (newYear == 'Year:' || newYear == 'All Time') {
@@ -45,6 +104,7 @@ watch(() => currentYear.value, (newYear) => {
     percWidth.value = '90px'
   }
   else {
+    getSettings(newYear);
     avgWidth.value = '221px'
     if (currentHighWeek.value < 100) {
       percWidth.value = '184px'
@@ -68,78 +128,9 @@ watch(() => currentHighWeek.value, (newHighWeek) => {
   }
 })
 
-interface selectdataInfo {
-    select: string,
-}
-
-let yearoptions: Array<selectdataInfo> = [
-    {select: "All Time"},
-    {select: "2025"},
-    {select: "2024"},
-    {select: "2023"},
-    {select: "2022"},
-    {select: "2021"},
-    {select: "2020"},
-    {select: "2019"},
-    {select: "2018"},
-    {select: "2017"},
-    {select: "2016"},
-    {select: "2015"},
-  ]
-
-let weekoptions: Array<selectdataInfo> = [
-    {select: "1"},
-    {select: "2"},
-    {select: "3"},
-    {select: "4"},
-    {select: "5"},
-    {select: "6"},
-    {select: "7"},
-    {select: "8"},
-    {select: "9"},
-    {select: "10"},
-    {select: "11"},
-    {select: "12"},
-    {select: "13"},
-    {select: "14"},
-    {select: "15"},
-    {select: "16"},
-    {select: "17"},
-    {select: "18"},
-  ]
-
-let statsoptions: Array<selectdataInfo> = [
-  {select: "Regular Season"},
-  {select: "Postseason"},
-  {select: "Combined"}
-]
-
 function goBack() {
   currentTable.value = tables[0];
 }
-
-// function changeStat(event: any) {
-//   if (!(currentYear.value=='All Time' || currentYear.value=='Year:'))
-//     switch(event.target.value) {
-//       case ("Combined"): { 
-//           currentLowWeek.value = 1
-//           currentHighWeek.value = 17
-//           break;
-//       }
-//       case ("Postseason"): {
-//         currentLowWeek.value = 15
-//         currentHighWeek.value = 17
-//         break; 
-//       } 
-//       default: {
-//         currentLowWeek.value = 1
-//         currentHighWeek.value = 14
-//         break;
-//       }
-//     }
-// }
-
-let activeColor = ref('white')
 
 function changePerc(event: Event) {
   const target = event.target as HTMLButtonElement;
@@ -181,8 +172,6 @@ function showDraft() {
   currentTable.value = tables[1];
 }
 
-  
-
 </script>
 
 <template>
@@ -195,12 +184,12 @@ function showDraft() {
     <option v-for="stats in statsoptions" :value="stats.select" :key="stats.select">{{stats.select}}</option>
   </select>
   <select v-if="currentTable.comp == MyTable && !(currentYear =='All Time' || currentYear =='Year:')" v-model="currentLowWeek" name="week" id="week">
-    <option v-for="week in weekoptions" :disabled="Number(week.select) >= Number(currentHighWeek)" :value="week.select" :key="week.select">Week {{week.select}}</option>
+    <option v-for="week in weekoptions" :disabled="Number(week.select) >= Number(currentHighWeek) || (Number(week.select) > maxHighWeek && Number(week.select) < 100)" :value="week.select" :key="week.select">Week {{week.select}}</option>
   </select>
   <p v-if="currentTable.comp == MyTable && !(currentYear =='All Time' || currentYear =='Year:') && currentHighWeek!=100">-</p>
   <select v-if="currentTable.comp == MyTable && !(currentYear =='All Time' || currentYear =='Year:')" v-model="currentHighWeek" :style="{ 'background': activeColor }" name="week" id="week">
     <option :value=100></option>
-    <option v-for="week in weekoptions" :disabled="Number(week.select) <= currentLowWeek" :value="week.select" :key="week.select">Week {{week.select}}</option>
+    <option v-for="week in weekoptions" :disabled="Number(week.select) <= currentLowWeek || (Number(week.select) > maxHighWeek && Number(week.select) < 100)" :value="week.select" :key="week.select">Week {{week.select}}</option>
   </select>
   <button v-if="currentTable.comp == MyDraft" id="brac" name="back" class="btn btn-light" @click="goBack()">Back</button>
   <button v-if="currentYear != 'Year:' && currentYear != 'All Time' && currentTable.comp != MyDraft" id="draft" name="draft" class="btn btn-light" @click="showDraft()">Draft Recap</button>
@@ -213,7 +202,7 @@ function showDraft() {
   <button v-if="currentTable.comp == MyBracket" id="brac" name="back" class="btn btn-light" @click="goBack()">Back</button>
   </div>
 
-  <component :is="currentTable.comp" :year="currentYear" :lowerWeek="currentLowWeek" :higherWeek="currentHighWeek" :stat="currentStat" :ppg="ppg" :per="per" @update-values="updateValues"></component>
+  <component :is="currentTable.comp" :year="currentYear" :lowerWeek="currentLowWeek" :higherWeek="currentHighWeek" :playoffWeek="playoffWeek" :maxHighWeek="maxHighWeek" :stat="currentStat" :ppg="ppg" :per="per" @update-values="updateValues"></component>
 
 </template>
 

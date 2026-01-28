@@ -40,7 +40,7 @@ class FFWebsiteAPI {
 
     async getLeaderboard(season: string) {
         if (season=='Year:' || season=='All Time') {
-            return this.#fetch(`leaderboard/all-time/`)
+            return this.#fetch(`leaderboard/all-time/?active=1`)
         }
         else {
             return this.#fetch(`leaderboard/?season_settings__season=${season}`)
