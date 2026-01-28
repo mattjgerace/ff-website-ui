@@ -502,7 +502,7 @@ const sortBackup = (a: lbdataInfo, b:lbdataInfo, primaryColumnName: keyof lbdata
     </thead>
     <tbody v-if="tabledata != null && (props.year=='All Time' || props.year=='Year:')">
       <tr v-for="row in tabledata" :key="row.team_id">
-        <td>{{ validate(row.championships) }}</td>
+        <td>{{ Number(validate(row.championships).toString()) }}</td>
         <td>{{ validate(row.avgstanding) }}</td>
         <td>{{ (row.full_name !== undefined) ? `${(row.full_name)}`: "N/A" }}</td>
         <td>{{ (props.per) ? calcWinningPerc(row) : (row.record != null) ? (row.record) : (`${validate(row.wins)}-${validate(row.losses)}`) }}</td>

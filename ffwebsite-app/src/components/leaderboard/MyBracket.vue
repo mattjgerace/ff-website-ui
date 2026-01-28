@@ -67,7 +67,7 @@ onMounted(() => {
 
 function buildBracket(matchupsdata_value: mdataInfo[]) {
   if (tabledata.value != null && tabledata.value.length > 0) {
-    //let reseed = true;
+    let reseed = true;
     let bracket : (lbdataInfo | undefined)[][][] = [[[], [], [], []], [[], []], [[]]];
     let team_num = playoff_team_num.value
     let team_counter = 0;
@@ -108,19 +108,39 @@ function buildBracket(matchupsdata_value: mdataInfo[]) {
       if (top_seed != undefined) {
         bracket[round_no].unshift(top_seed)
       }
-      
+
+      let winners : Array<lbdataInfo | undefined> = [];
       for (let i = 0; i < bracket[round_no].length; i++) {
-        let is_odd = (i) % 2
-        if (round_no == 0) {
-          if (is_odd !== 0) {
-            bracket[round_no][i].reverse();
+        let winner: lbdataInfo;
+        winner = findWinner(bracket[round_no][i], round_no);
+        if (!reseed) {
+          let is_odd = (i) % 2
+          if (round_no == 0) {
+            if (is_odd !== 0) {
+              bracket[round_no][i].reverse();
+            }
+          }
+          (i > 1) ? bracket[round_no + 1][i - is_odd - 1][is_odd] = winner : bracket[round_no + 1][i - is_odd][is_odd] = winner
+        }
+        else {
+          console.log(winner.full_name)
+          winners.push(winner);
+        }
+      }
+      if (reseed) {
+        winners.sort((a, b) => a.seed - b.seed);
+        console
+
+        let j = 0;
+        while (winners.length > 1) {
+          const highSeed = winners.shift()!;
+          const lowSeed  = winners.pop()!;
+          bracket[round_no + 1][j][(j + 2) % 2] = highSeed;
+          bracket[round_no + 1][j][(j + 3) % 2] = lowSeed;
+          j++;
           }
         }
-        let winner: lbdataInfo | undefined;
-        winner = findWinner(bracket[round_no][i], round_no);
-        (i > 1) ? bracket[round_no+1][i-is_odd-1][is_odd] = winner : bracket[round_no+1][i-is_odd][is_odd] = winner
       }
-    }
     return bracket
   }
   else if (tabledata.value != null && tabledata.value.length == 0) {
@@ -173,7 +193,7 @@ function findScore(team1: lbdataInfo | undefined, team2: lbdataInfo | undefined,
   }
 }
 
-function findWinner(matchup: (lbdataInfo| undefined)[], round_index: number): (lbdataInfo | undefined) {
+function findWinner(matchup: (lbdataInfo)[], round_index: number): (lbdataInfo) {
   let team1 = matchup[0]
   let team2 = matchup[1]
   if (team1 == undefined || team2 == undefined) {
@@ -250,14 +270,14 @@ function findTeam(team: lbdataInfo | undefined) : string {
   <ul v-for="(round, round_index) in bracketdata" :key="round_index" class="round">
     <li class="spacer">&nbsp;</li>
     <template v-for="(game, game_index) in round" :key="game_index">
-      <li :class="[(round.length != 1) ? 'game game-top' :  (game[0] != undefined && (findLoser(game, Number(round_index)).seed == game[0].seed)) ? 'game game-top second' : 'game game-top', (game[0] != undefined && findWinner(game, Number(round_index)) != undefined && game != undefined && (findWinner(game, Number(round_index)).seed == game[0].seed)) ? 'game winner' : 'game']">{{findTeam(game[0])}}<span>{{findScore(game[0], game[1], Number(round_index))}}</span></li>
+      <li :class="[(round.length != 1) ? 'game game-top' :  ((props.year != '2022') && (game[0] != undefined && (findLoser(game, Number(round_index)).seed == game[0].seed))) ? 'game game-top second' : 'game game-top', (game[0] != undefined && findWinner(game, Number(round_index)) != undefined && game != undefined && (findWinner(game, Number(round_index)).seed == game[0].seed) && !(props.year == 2022 && round_index == 2)) ? 'game winner' : 'game']">{{findTeam(game[0])}}<span>{{findScore(game[0], game[1], Number(round_index))}}</span></li>
       <li class="game game-spacer">&nbsp;</li>
-      <li :class="[(round.length != 1) ? 'game game-bottom' : (game[1] != undefined && (findLoser(game, Number(round_index)).seed == game[1].seed)) ? 'game game-bottom second' : 'game game-bottom', (game[1] != undefined && (findWinner(game, Number(round_index)) != undefined) && game != undefined && (findWinner(game, Number(round_index)).seed == game[1].seed)) ? 'game winner' : 'game']">{{findTeam(game[1])}}<span>{{findScore(game[1], game[0], Number(round_index))}}</span></li>
+      <li :class="[(round.length != 1) ? 'game game-bottom' : ((props.year != '2022') && (game[1] != undefined && (findLoser(game, Number(round_index)).seed == game[1].seed))) ? 'game game-bottom second' : 'game game-bottom', (game[1] != undefined && (findWinner(game, Number(round_index)) != undefined) && game != undefined && (findWinner(game, Number(round_index)).seed == game[1].seed)) ? 'game winner' : 'game']">{{findTeam(game[1])}}<span>{{findScore(game[1], game[0], Number(round_index))}}</span></li>
       <li class="spacer">&nbsp;</li>
     </template>
   </ul>
   <ul class="round round-4" v-if="bracketdata">
-      <li class="game game-top champion">{{findTeam(findWinner(bracketdata[bracketdata.length-1][0], bracketdata.length-1))}}</li>
+      <li class="game game-top champion">{{(props.year != "2022") ? findTeam(findWinner(bracketdata[bracketdata.length-1][0], bracketdata.length-1)) : findTeam(findWinner(bracketdata[bracketdata.length-1][0], bracketdata.length-1))+' / '+findTeam(findLoser(bracketdata[bracketdata.length-1][0], bracketdata.length-1))}}</li>
   </ul>
   </main>
   <main id="tournament" v-if="bracketdata">
@@ -302,6 +322,10 @@ main{
     flex-grow:1;
   }
 
+  .round-4 {
+    width: 300px;
+  }
+
 /*
  *  General Styles
 */
@@ -322,6 +346,7 @@ li.game{
   }
   li.game.champion{
     color: goldenrod;
+    white-space: pre-wrap;
   }
   li.game.second{
     color: silver;
