@@ -44,7 +44,8 @@ interface mdataInfo {
 
 interface sdataInfo {
   playoff_team_num: number,
-  playoff_week_start: number
+  playoff_week_start: number,
+  season: number,
 }
 
 const tabledata: Ref<Array<lbdataInfo> | null> = ref(null);
@@ -67,7 +68,7 @@ onMounted(() => {
 
 function buildBracket(matchupsdata_value: mdataInfo[]) {
   if (tabledata.value != null && tabledata.value.length > 0) {
-    let reseed = true;
+    let reseed = (settingsdata.value.season >= 2022);
     let bracket : (lbdataInfo | undefined)[][][] = [[[], [], [], []], [[], []], [[]]];
     let team_num = playoff_team_num.value
     let team_counter = 0;
@@ -158,6 +159,7 @@ async function fetchBracket() {
       if (settingsdata.value != null) {
         playoff_team_num.value = settingsdata.value[0].playoff_team_num
         playoff_week_start.value = settingsdata.value[0].playoff_week_start
+        playoff_week_start.value = settingsdata.value[0].season
       }
       const matchups_response = await ffWebsiteAPI.getMatchups(props.year, null, null, 1)
       matchupsdata.value = matchups_response;
