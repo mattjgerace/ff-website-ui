@@ -51,6 +51,7 @@ class FFWebsiteAPI {
     }
 
     async retry(request: () => Promise<Response>, maxRetries = 5, delayMs = 1000): Promise<any> {
+        console.log(`Attempt failed. Retrying in ${delayMs}ms... (Tries left: ${maxRetries})`);
         try {
             await this.delay(delayMs);
             return request;
@@ -59,7 +60,6 @@ class FFWebsiteAPI {
               console.error("Max retries exceeded, throwing error:", err);
               throw err;
             }
-            console.log(`Attempt failed. Retrying in ${delayMs}ms... (Tries left: ${maxRetries})`);
             return this.retry(request, maxRetries - 1, delayMs);
           }
     }
