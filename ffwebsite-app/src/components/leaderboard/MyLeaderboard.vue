@@ -13,8 +13,8 @@ onMounted(() => {
   ffWebsiteAPI.ready = new Promise(resolve => {
       ffWebsiteAPI.resolver = resolve;
   });
-  ffWebsiteAPI.resolver(1)
   fetchSettings();
+  ffWebsiteAPI.resolver(1)
   console.log("Leaderboard is mounted")
 });
 
@@ -81,7 +81,7 @@ async function fetchSettings() {
     }
 }
 
-async function getSettings(year: string) {
+async function getSeasonSettings(year: string) {
       weekoptions.value = [];
       playoffWeek.value = seasonsettings.get(year).playoff_week_start;
 
@@ -104,7 +104,7 @@ watch(() => currentYear.value, (newYear) => {
     percWidth.value = '90px'
   }
   else {
-    getSettings(newYear);
+    getSeasonSettings(newYear);
     avgWidth.value = '221px'
     if (currentHighWeek.value < 100) {
       percWidth.value = '184px'
