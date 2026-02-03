@@ -38,8 +38,7 @@ class FFWebsiteAPI {
             return fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse);
         }
         catch(err: any) {
-            console.log(err.message == 'Service Unavailable')
-            if (err.status === 503 || err.status === 504) {
+            if (err.message == 'Service Unavailable') {
                 return this.retry(() => fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse))
             }
             else {
