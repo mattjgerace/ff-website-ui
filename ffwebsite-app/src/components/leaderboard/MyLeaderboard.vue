@@ -33,6 +33,8 @@ interface settingsInfo {
     playoff_week_start: number,
 }
 
+const loading = ref(false);
+
 const per = ref(false)
 const ppg = ref(false)
 
@@ -63,6 +65,7 @@ let statsoptions: Array<selectdataInfo> = [
 ]
 
 async function fetchSettings() {
+    loading.value = true;
     try {
       //yearoptions.value.push({select: "2019"})
       const response = await ffWebsiteAPI.getSettings(currentYear.value);
@@ -78,6 +81,9 @@ async function fetchSettings() {
     }
     catch (e) {
       console.log(e)
+    }
+    finally {
+      loading.value = false;
     }
 }
 
@@ -202,7 +208,10 @@ function showDraft() {
   <button v-if="currentTable.comp == MyBracket" id="brac" name="back" class="btn btn-light" @click="goBack()">Back</button>
   </div>
 
-  <component :is="currentTable.comp" :year="currentYear" :lowerWeek="currentLowWeek" :higherWeek="currentHighWeek" :playoffWeek="playoffWeek" :maxHighWeek="maxHighWeek" :stat="currentStat" :ppg="ppg" :per="per" @update-values="updateValues"></component>
+  <div v-if="loading" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+  <component v-else :is="currentTable.comp" :year="currentYear" :lowerWeek="currentLowWeek" :higherWeek="currentHighWeek" :playoffWeek="playoffWeek" :maxHighWeek="maxHighWeek" :stat="currentStat" :ppg="ppg" :per="per" @update-values="updateValues"></component>
 
 </template>
 
@@ -254,6 +263,33 @@ height:35px;
 width:200px;
 font-size: 15px;
 float:right;
+}
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 </style>
