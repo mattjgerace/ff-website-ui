@@ -53,8 +53,9 @@ interface mdataInfo {
 
 
 const tabledata: Ref<Array<lbdataInfo> | null> = ref(null);
-
 const matchupsdata: Ref<Array<mdataInfo> | null> = ref(null);
+
+const loading = ref(false);
 
 onMounted(() => {
   ffWebsiteAPI.ready = new Promise(resolve => {
@@ -69,6 +70,7 @@ async function fetchLeaderboard() {
       const response = await ffWebsiteAPI.getLeaderboard(props.year);
       tabledata.value = response;
       if (response.length!=0) {
+        loading.value = true;
         await fetchMatchups()
       }
       await nextTick()
@@ -76,6 +78,9 @@ async function fetchLeaderboard() {
     }
     catch (e) {
       console.log(e)
+    }
+    finally {
+      loading.value = false;
     }
 }
 
@@ -488,7 +493,10 @@ const sortBackup = (a: lbdataInfo, b:lbdataInfo, primaryColumnName: keyof lbdata
 </script>
 
 <template>
-  <table class="table table-light table-striped">
+  <div v-if="loading" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+  <table v-else class="table table-light table-striped">
     <thead class="thead">
       <tr>
         <th v-for="names in ((props.year=='All Time' || props.year=='Year:') ? colnames.combined : colnames.single)" :key="names.col" @click="(names.col !== 'Team') ? sortByColumn(names.sort) : ''" class="thead" scope="col">
@@ -573,6 +581,34 @@ height:35px;
 width:200px;
 font-size: 15px;
 float:right;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 </style>
