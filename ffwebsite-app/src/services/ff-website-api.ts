@@ -18,9 +18,10 @@ class FFWebsiteAPI {
                 return response.json()
             case 201:
                 return response.json()
-            case 503: {
+            case 503:
+            case 504:{
                 const error: any = new Error('Service Unavailable');
-                error.status = 503;
+                error.status = response.status;
                 throw error;
             }
             default:
