@@ -116,8 +116,8 @@ const isEvenRound = (roundNum: number) => {
                                   'pick-qb': pick.player.position==='QB',
                                   'pick-k': pick.player.position==='K',
                                   'pick-d': pick.player.position==='DEF'}" 
-                                  v-for="pick in round" :key="pick.pick_num">
-          <span class="pick-number">{{pick.round_num}}.{{isEvenRound(Number(round_index)+1) ? Number(round_index)+1 : teams-Number(round_index)}} ({{pick.pick_num}})</span>{{pick.player.first_name}}<br>{{pick.player.last_name}}
+                                  v-for="(pick, pick_index) in round" :key="pick.pick_num">
+          <span class="pick-number">{{pick.round_num}}.{{isEvenRound(Number(round_index)+1) ? Number(pick_index)+1 : teams-Number(pick_index)}} ({{pick.pick_num}})</span>{{pick.player.first_name}}<br>{{pick.player.last_name}}
           <span class="pos">{{pick.player.position}}</span>
           <!-- <span :class="checkClass(index, index2)"></span> -->
           <!-- ARROW Direction <span :class="isEvenRound(index+1) ? ((index2==11) ? 'down-arrow': 'side-arrow') : (index2==0 ? 'down-arrow' : 'side-arrow')">{{(isEvenRound(index+1)) ? (index2==11 ? "&#8595;" : "&#8594;") : (index2==0 ? "&#8595;" : "&#8592;")}}</span> -->
