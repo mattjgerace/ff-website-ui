@@ -37,7 +37,7 @@ class FFWebsiteAPI {
             return fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse);
         }
         catch(err: any) {
-            if (err.status === 503) {
+            if (err.status === 503 || err.status === 504) {
                 return this.retry(() => fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse))
             }
             else {
