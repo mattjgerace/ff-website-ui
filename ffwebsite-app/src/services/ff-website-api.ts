@@ -57,7 +57,7 @@ class FFWebsiteAPI {
         console.log(`Attempt failed. Retrying in ${delayMs}ms... (Tries left: ${maxRetries})`);
         try {
             await this.delay(delayMs);
-            return request;
+            return request();
           } catch (err: any) {
             if (maxRetries <= 0) {
               console.error("Max retries exceeded, throwing error:", err);
