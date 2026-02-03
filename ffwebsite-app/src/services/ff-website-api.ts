@@ -34,17 +34,19 @@ class FFWebsiteAPI {
 
     async #fetch(path: string, config={ headers: this.headers }) {
         await this.ready;
-        try{
-            return fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse);
-        }
-        catch(err: any) {
-            if (err.message == 'Service Unavailable') {
-                return this.retry(() => fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse))
+        return fetch(`${this.apiHost}/api/${path}`, config).then(
+            response => this.processResponse(response)
+            ).catch(err => {
+            console.log(err.message);
+            if (err.message === 'Service Unavailable') {
+              return this.retry(() =>
+                fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse)
+              );
             }
             else {
-            // real error → stop
+                throw err;
             }
-        }
+        })
     }
 
     private delay(ms: number) {
