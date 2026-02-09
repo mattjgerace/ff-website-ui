@@ -126,13 +126,11 @@ function buildBracket(matchupsdata_value: mdataInfo[]) {
           (i > 1) ? bracket[round_no + 1][i - is_odd - 1][is_odd] = winner : bracket[round_no + 1][i - is_odd][is_odd] = winner
         }
         else {
-          console.log(winner.full_name)
           winners.push(winner);
         }
       }
       if (reseed) {
         winners.sort((a, b) => a.seed - b.seed);
-        console
 
         let j = 0;
         while (winners.length > 1) {
@@ -270,46 +268,60 @@ function findTeam(team: lbdataInfo | undefined) : string {
 
 <template>
   <h2>{{year}} Playoff Bracket</h2>
-  <main id="tournament" v-if="bracketdata">
-  <ul v-for="(round, round_index) in bracketdata" :key="round_index" class="round">
-    <li class="spacer">&nbsp;</li>
-    <template v-for="(game, game_index) in round" :key="game_index">
-      <li :class="[(round.length != 1) ? 'game game-top' :  ((props.year != '2022') && (game[0] != undefined && (findLoser(game, Number(round_index)).seed == game[0].seed))) ? 'game game-top second' : 'game game-top', (game[0] != undefined && findWinner(game, Number(round_index)) != undefined && game != undefined && (findWinner(game, Number(round_index)).seed == game[0].seed) && !(props.year == 2022 && round_index == 2)) ? 'game winner' : 'game']">{{findTeam(game[0])}}<span>{{findScore(game[0], game[1], Number(round_index))}}</span></li>
-      <li class="game game-spacer">&nbsp;</li>
-      <li :class="[(round.length != 1) ? 'game game-bottom' : ((props.year != '2022') && (game[1] != undefined && (findLoser(game, Number(round_index)).seed == game[1].seed))) ? 'game game-bottom second' : 'game game-bottom', (game[1] != undefined && (findWinner(game, Number(round_index)) != undefined) && game != undefined && (findWinner(game, Number(round_index)).seed == game[1].seed)) ? 'game winner' : 'game']">{{findTeam(game[1])}}<span>{{findScore(game[1], game[0], Number(round_index))}}</span></li>
+  <div class="tournament-wrapper">
+    <main id="tournament" v-if="bracketdata">
+    <ul v-for="(round, round_index) in bracketdata" :key="round_index" class="round">
       <li class="spacer">&nbsp;</li>
-    </template>
-  </ul>
-  <ul class="round round-4" v-if="bracketdata">
-      <li class="game game-top champion">{{(props.year != "2022") ? findTeam(findWinner(bracketdata[bracketdata.length-1][0], bracketdata.length-1)) : findTeam(findWinner(bracketdata[bracketdata.length-1][0], bracketdata.length-1))+' / '+findTeam(findLoser(bracketdata[bracketdata.length-1][0], bracketdata.length-1))}}</li>
-  </ul>
-  </main>
-  <main id="tournament" v-if="bracketdata">
-       <!-- 3rd Place -->
-       <ul class="round round-1"></ul>
-       <ul class="round round-2"></ul>
-       <ul class="round round-3">
-       <li class="spacer">&nbsp;</li>
-  
-        <li :class="['game game-top', ((findThirdPlaceMathcup(bracketdata)[0] != undefined) && (findWinner(findThirdPlaceMathcup(bracketdata), bracketdata.length-1).seed == (findThirdPlaceMathcup(bracketdata)[0]).seed)) ? 'game winner' : 'game']">{{findTeam(findThirdPlaceMathcup(bracketdata)[0])}} <span>{{findScore(findThirdPlaceMathcup(bracketdata)[0], findThirdPlaceMathcup(bracketdata)[1], bracketdata.length-1)}}</span></li>
-
+      <template v-for="(game, game_index) in round" :key="game_index">
+        <li :class="[(round.length != 1) ? 'game game-top' :  ((props.year != '2022') && (game[0] != undefined && (findLoser(game, Number(round_index)).seed == game[0].seed))) ? 'game game-top second' : 'game game-top', (game[0] != undefined && findWinner(game, Number(round_index)) != undefined && game != undefined && (findWinner(game, Number(round_index)).seed == game[0].seed) && !(props.year == 2022 && round_index == 2)) ? 'game winner' : 'game']">{{findTeam(game[0])}}<span>{{findScore(game[0], game[1], Number(round_index))}}</span></li>
         <li class="game game-spacer">&nbsp;</li>
-
-        <li :class="['game game-bottom', (findThirdPlaceMathcup(bracketdata)[1] != undefined && (findWinner(findThirdPlaceMathcup(bracketdata), bracketdata.length-1).seed == (findThirdPlaceMathcup(bracketdata)[1]).seed)) ? 'game winner' : 'game']">{{findTeam(findThirdPlaceMathcup(bracketdata)[1])}}<span>{{findScore(findThirdPlaceMathcup(bracketdata)[1], findThirdPlaceMathcup(bracketdata)[0], bracketdata.length-1)}}</span></li>
-  
+        <li :class="[(round.length != 1) ? 'game game-bottom' : ((props.year != '2022') && (game[1] != undefined && (findLoser(game, Number(round_index)).seed == game[1].seed))) ? 'game game-bottom second' : 'game game-bottom', (game[1] != undefined && (findWinner(game, Number(round_index)) != undefined) && game != undefined && (findWinner(game, Number(round_index)).seed == game[1].seed)) ? 'game winner' : 'game']">{{findTeam(game[1])}}<span>{{findScore(game[1], game[0], Number(round_index))}}</span></li>
+        <li class="spacer">&nbsp;</li>
+      </template>
+    </ul>
+    <ul class="round round-4" v-if="bracketdata">
+        <li class="game game-top champion">{{(props.year != "2022") ? findTeam(findWinner(bracketdata[bracketdata.length-1][0], bracketdata.length-1)) : findTeam(findWinner(bracketdata[bracketdata.length-1][0], bracketdata.length-1))+' / '+findTeam(findLoser(bracketdata[bracketdata.length-1][0], bracketdata.length-1))}}</li>
+    </ul>
+    </main>
+    <main id="tournament" v-if="bracketdata">
+         <!-- 3rd Place -->
+         <ul class="round round-1"></ul>
+         <ul class="round round-2"></ul>
+         <ul class="round round-3">
          <li class="spacer">&nbsp;</li>
-       </ul>
-       <ul class="round round-4">
-         <li class="game game-top third">{{ findTeam(findWinner(findThirdPlaceMathcup(bracketdata), bracketdata.length-1)) }}</li>
-       </ul>
-  </main>
+
+          <li :class="['game game-top', ((findThirdPlaceMathcup(bracketdata)[0] != undefined) && (findWinner(findThirdPlaceMathcup(bracketdata), bracketdata.length-1).seed == (findThirdPlaceMathcup(bracketdata)[0]).seed)) ? 'game winner' : 'game']">{{findTeam(findThirdPlaceMathcup(bracketdata)[0])}} <span>{{findScore(findThirdPlaceMathcup(bracketdata)[0], findThirdPlaceMathcup(bracketdata)[1], bracketdata.length-1)}}</span></li>
+
+          <li class="game game-spacer">&nbsp;</li>
+
+          <li :class="['game game-bottom', (findThirdPlaceMathcup(bracketdata)[1] != undefined && (findWinner(findThirdPlaceMathcup(bracketdata), bracketdata.length-1).seed == (findThirdPlaceMathcup(bracketdata)[1]).seed)) ? 'game winner' : 'game']">{{findTeam(findThirdPlaceMathcup(bracketdata)[1])}}<span>{{findScore(findThirdPlaceMathcup(bracketdata)[1], findThirdPlaceMathcup(bracketdata)[0], bracketdata.length-1)}}</span></li>
+
+           <li class="spacer">&nbsp;</li>
+         </ul>
+         <ul class="round round-4">
+           <li class="game game-top third">{{ findTeam(findWinner(findThirdPlaceMathcup(bracketdata), bracketdata.length-1)) }}</li>
+         </ul>
+    </main>
+  </div>
 </template>
 
 <style scoped>
+
+
 main{
   display:flex;
   flex-direction:row;
+  flex: 1 1 auto;
+  min-width: 0;
 }
+
+.tournament-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: auto;
+}
+
 .round{
   display:flex;
   flex-direction:column;
@@ -330,9 +342,6 @@ main{
     width: 300px;
   }
 
-/*
- *  General Styles
-*/
 body{
   font-family:sans-serif;
   font-size:small;
@@ -342,6 +351,8 @@ body{
 
 li.game{
   padding-left:20px;
+  flex-wrap: nowrap;
+  font-size: clamp(8px, 1.5vw, 14px);
 }
 
   li.game.winner{
@@ -350,7 +361,7 @@ li.game{
   }
   li.game.champion{
     color: goldenrod;
-    white-space: pre-wrap;
+    white-space: nowrap;
   }
   li.game.second{
     color: silver;
@@ -361,6 +372,7 @@ li.game{
   li.game span{
     float:right;
     margin-right:5px;
+    margin-left:5px;
   }
 
   li.game-top{ border-bottom:1px solid #aaa; }
@@ -376,4 +388,14 @@ li.game{
   h2 {
     margin-left: 5px;
   }
+
+  @media (max-width: 600px) {
+  h2 {
+    font-size: 0.95rem;
+  }
+  li {
+    padding-left: 14px !important;
+    font-size: 8px !important;
+  }
+}
 </style>
