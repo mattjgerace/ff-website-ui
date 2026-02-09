@@ -47,11 +47,8 @@ const currentHighWeek = ref(14);
 
 let currentTable = shallowRef(tables[0]);
 
-let activeColor = ref('white')
 let avg = shallowRef('Total Points');
 let perc = shallowRef('Record');
-let avgWidth = ref('126px')
-let percWidth = ref('90px')
 
 let yearoptions = ref<Array<selectdataInfo | null>>([{select: "All Time"}])
 let weekoptions = ref<Array<selectdataInfo | null>>([])
@@ -105,32 +102,8 @@ function updateValues(payload: { stat?: string; lowerWeek?: number; higherWeek?:
 }
 
 watch(() => currentYear.value, (newYear) => {
-  if (newYear == 'Year:' || newYear == 'All Time') {
-    avgWidth.value = '126px'
-    percWidth.value = '90px'
-  }
-  else {
+  if (!(newYear == 'Year:' || newYear == 'All Time')) {
     getSeasonSettings(newYear);
-    avgWidth.value = '221px'
-    if (currentHighWeek.value < 100) {
-      percWidth.value = '184px'
-    }
-    else {
-      percWidth.value = '176px'
-    }
-  }
-
-})
-
-
-watch(() => currentHighWeek.value, (newHighWeek) => {
-  if (newHighWeek<100) {
-    activeColor.value = 'white'
-    percWidth.value = '184px'
-  }
-  else {
-    activeColor.value = '#013369'
-    percWidth.value = '176px'
   }
 })
 
@@ -181,31 +154,39 @@ function showDraft() {
 </script>
 
 <template>
-  <div class="select">
-  <select v-model="currentYear" name="year" id="year">
-    <option disabled :selected="currentYear == 'Year:'">Year:</option>
-    <option :disabled="(currentTable.comp == MyDraft || currentTable.comp == MyBracket) && (year.select =='All Time')" v-for="year in yearoptions" :value="year.select" :key="year.select">{{year.select}}</option>
-  </select>
-  <select v-if="currentTable.comp == MyTable" v-model="currentStat" name="stat" id="stat">
-    <option v-for="stats in statsoptions" :value="stats.select" :key="stats.select">{{stats.select}}</option>
-  </select>
-  <select v-if="currentTable.comp == MyTable && !(currentYear =='All Time' || currentYear =='Year:')" v-model="currentLowWeek" name="week" id="week">
-    <option v-for="week in weekoptions" :disabled="Number(week.select) >= Number(currentHighWeek) || (Number(week.select) > maxHighWeek && Number(week.select) < 100)" :value="week.select" :key="week.select">Week {{week.select}}</option>
-  </select>
-  <p v-if="currentTable.comp == MyTable && !(currentYear =='All Time' || currentYear =='Year:') && currentHighWeek!=100">-</p>
-  <select v-if="currentTable.comp == MyTable && !(currentYear =='All Time' || currentYear =='Year:')" v-model="currentHighWeek" :style="{ 'background': activeColor }" name="week" id="week">
-    <option :value=100></option>
-    <option v-for="week in weekoptions" :disabled="Number(week.select) <= currentLowWeek || (Number(week.select) > maxHighWeek && Number(week.select) < 100)" :value="week.select" :key="week.select">Week {{week.select}}</option>
-  </select>
-  <button v-if="currentTable.comp == MyDraft" id="brac" name="back" class="btn btn-light" @click="goBack()">Back</button>
-  <button v-if="currentYear != 'Year:' && currentYear != 'All Time' && currentTable.comp != MyDraft" id="draft" name="draft" class="btn btn-light" @click="showDraft()">Draft Recap</button>
-  </div>
-  <div class="select">
-  <button v-if="currentTable.comp == MyTable" id="avg" name="avg" class="btn btn-secondary" @click="changeAvg($event)">{{avg}}</button>
-  <button v-if="currentTable.comp == MyTable" id="perc" name="perc" class="btn btn-secondary" @click="changePerc($event)">{{perc}}</button>
+  <div class="controls-grid">
+    <div class="left-col">
+      <div class="top-selects">
+        <select v-model="currentYear" name="year" id="year">
+          <option disabled :selected="currentYear == 'Year:'">Year:</option>
+          <option :disabled="(currentTable.comp == MyDraft || currentTable.comp == MyBracket) && (year.select =='All Time')" v-for="year in yearoptions" :value="year.select" :key="year.select">{{year.select}}</option>
+        </select>
+        <select v-if="currentTable.comp == MyTable" v-model="currentStat" name="stat" id="stat">
+          <option v-for="stats in statsoptions" :value="stats.select" :key="stats.select">{{stats.select}}</option>
+        </select>
+        </div>
+        <div class="week-range-group" v-if="currentTable.comp == MyTable && !(currentYear =='All Time' || currentYear =='Year:')">
+          <select v-model="currentLowWeek" name="week" id="week">
+            <option v-for="week in weekoptions" :disabled="Number(week.select) >= Number(currentHighWeek) || (Number(week.select) > maxHighWeek && Number(week.select) < 100)" :value="week.select" :key="week.select">Week {{week.select}}</option>
+          </select>
+          <span v-if="currentHighWeek!=100">-</span>
+          <select v-model="currentHighWeek" :class="{ 'same-week': Number(currentHighWeek) === 100 }" name="week" id="week">
+            <option v-for="week in weekoptions" :disabled="Number(week.select) < currentLowWeek || (Number(week.select) > maxHighWeek && Number(week.select) < 100)" :value="(week.select != currentLowWeek) ? week.select : 100" :key="week.select">Week {{week.select}}</option>
+          </select>
+        </div>
+      <div class="avg-perc">
+        <button v-if="currentTable.comp == MyTable" id="avg" name="avg" class="btn btn-secondary" @click="changeAvg($event)">{{avg}}</button>
+        <button v-if="currentTable.comp == MyTable" id="perc" name="perc" class="btn btn-secondary" @click="changePerc($event)">{{perc}}</button>
+      </div>
+    </div>
 
-  <button v-if="currentYear != 'Year:' && currentYear != 'All Time' && currentTable.comp != MyBracket" id="brac" name="brac" class="btn btn-light" @click="showBrac()">Playoff Bracket</button>
-  <button v-if="currentTable.comp == MyBracket" id="brac" name="back" class="btn btn-light" @click="goBack()">Back</button>
+    <div class="right-col">
+      <button v-if="currentTable.comp == MyDraft" id="brac" name="back" class="btn btn-light" @click="goBack()">Back</button>
+      <button v-if="currentYear != 'Year:' && currentYear != 'All Time' && currentTable.comp != MyDraft" id="draft" name="draft" class="btn btn-light" @click="showDraft()">Draft Recap</button>
+      <button v-if="currentYear != 'Year:' && currentYear != 'All Time' && currentTable.comp != MyBracket" id="brac" name="brac" class="btn btn-light" @click="showBrac()">Playoff Bracket</button>
+      <button v-if="currentTable.comp == MyBracket" id="brac" name="back" class="btn btn-light" @click="goBack()">Back</button>
+    </div>
+
   </div>
 
   <div v-if="loading" class="loading-overlay">
@@ -216,54 +197,115 @@ function showDraft() {
 </template>
 
 <style scoped>
-.material-icons {
-    vertical-align: -6px;
-}
 
 th {
     cursor: pointer;
 }
 
-p {
-   display:inline;
-   margin-right: 5px;
+.controls-grid {
+  display: grid;
+  grid-template-columns: 30% 1fr 220px;
+  gap: 15px;
+  align-items: start;
+  margin-bottom: 15px;
+  width: 100%;
 }
 
-.select {
-  margin-bottom: 15px;
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
 }
-#year {
-  margin-right: 5px;
+
+.top-selects {
+  display: grid;
+  grid-template-columns: 0.66fr 1fr;
+  gap: 5px;
+  align-items: center;
+  font-size: 13px;
+  min-width: 250px;
+  max-width: 400px;
 }
-#week {
-  margin-right: 5px;
+
+.top-selects select {
+  width: 100%;
 }
-#stat {
-  margin-right: 5px;
+
+.week-range-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 5px;
+  font-size: 13px;
+  align-items: center;
+  min-width: 250px;
+  max-width: 400px;
 }
-#avg {
-  font-size:12px;
-  padding-bottom: -5px;
-  width: v-bind('avgWidth');
+
+.same-week {
+  grid-column: 3;
+  background: #013369;
+  color: #013369;
+  width: 100%;
 }
-#perc {
-  font-size:12px;
-  padding-bottom: -5px;
-  width: v-bind('percWidth');
-  margin-left: 5px;
+
+.week-range-group select {
+  width: 100%;
 }
+
+.avg-perc {
+  display: grid;
+  grid-template-columns: 1fr 0.75fr;
+  gap: 5px;
+  align-items: center;
+  margin-top: 5px;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.avg-perc button {
+  width: 100%;
+  min-width: 0;
+  font-size: 11px;
+}
+
+
+.top-selects select,
+.week-range-group select,
+.avg-perc button {
+  height: 30px;
+  line-height: 1.2;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.right-col {
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 200px;
+  flex-shrink: 0; /* never shrink */
+}
+
+.right-col button {
+  height: 35px;
+  font-size: 15px;
+  float: none;
+  white-space: nowrap;
+}
+
 #draft {
 height:35px;
 width:200px;
 font-size: 15px;
-float:right;
 }
 #brac {
 height:35px;
 width:200px;
 font-size: 15px;
-float:right;
 }
+
 .loading-overlay {
   position: absolute;
   top: 0;
@@ -290,6 +332,60 @@ float:right;
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+
+  .controls-grid {
+    grid-template-columns: 25% 1fr auto;
+  }
+
+  .left-col {
+    flex-wrap: wrap;
+  }
+
+  .top-selects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-width: 181px;
+    max-width: 236px;
+  }
+
+  .week-range-group {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 5px;
+    align-items: center;
+    min-width: 181px;
+    max-width: 236px;
+  }
+
+  .avg-perc {
+    min-width: 180px;
+    max-width: 235px;
+  }
+
+  .right-col {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .right-col button {
+    width: 100%;
+  }
+
+  #year, #week, #stat, #avg, #perc {
+    font-size: 10px !important;
+  }
+
+  #brac, #draft {
+    width: 150px !important;
+    height: 30px !important;
+    font-size: 10px !important;
+  }
 }
 
 </style>
