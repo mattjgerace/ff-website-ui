@@ -103,7 +103,6 @@ const isEvenRound = (roundNum: number) => {
   <h2>{{year}} Draft</h2>
   
   <body>
-        <div class="draft-wrapper">
         <div class="draft-board">
         <div class="team" v-for="pick in draftOrder" :key="pick.pick_num">
           {{ pick.team.first_name }}
@@ -125,7 +124,6 @@ const isEvenRound = (roundNum: number) => {
         </div>
         </template>
         </div>
-        </div>
   </body>
   
   </template>
@@ -138,11 +136,6 @@ h2 {
 p {
     margin-left: 5px;
   }
-
-.draft-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
 
 .draft-board {
     display: grid;
