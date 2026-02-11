@@ -156,6 +156,7 @@ p {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     position: relative;
     text-align: center;
+    align-content: center;
     font-size: 12px;
     color: black;
 }
@@ -277,7 +278,7 @@ p {
 
 @media (max-width: 600px) {
   .draft-board {
-    grid-template-columns: repeat(v-bind('teams'), 70px);
+    grid-template-columns: repeat(v-bind('teams'), 75px);
     gap: 10px;
   }
 
@@ -286,16 +287,16 @@ p {
   }
 
   .pick {
-    font-size: 10px;
+    font-size: 9px;
     height: 60px;
   }
 
   .pick-number {
-    font-size: 8px;
+    font-size: 7px;
   }
 
   .pos {
-    font-size: 8px;
+    font-size: 7px;
   }
 
 }
