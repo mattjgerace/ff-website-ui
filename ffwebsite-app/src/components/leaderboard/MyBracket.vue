@@ -394,8 +394,8 @@ li.game{
     font-size: 0.95rem;
   }
   li {
-    padding-left: 14px !important;
-    font-size: 8px !important;
+    padding-left: 10px !important;
+    font-size: 7px !important;
   }
 }
 </style>
