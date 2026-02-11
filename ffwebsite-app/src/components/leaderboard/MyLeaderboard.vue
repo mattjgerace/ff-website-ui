@@ -192,8 +192,9 @@ function showDraft() {
   <div v-if="loading" class="loading-overlay">
     <div class="spinner"></div>
   </div>
-  <component v-else :is="currentTable.comp" :year="currentYear" :lowerWeek="currentLowWeek" :higherWeek="currentHighWeek" :playoffWeek="playoffWeek" :maxHighWeek="maxHighWeek" :stat="currentStat" :ppg="ppg" :per="per" @update-values="updateValues"></component>
-
+  <div v-else class="component-wrapper">
+    <component :is="currentTable.comp" :year="currentYear" :lowerWeek="currentLowWeek" :higherWeek="currentHighWeek" :playoffWeek="playoffWeek" :maxHighWeek="maxHighWeek" :stat="currentStat" :ppg="ppg" :per="per" @update-values="updateValues"></component>
+  </div>
 </template>
 
 <style scoped>

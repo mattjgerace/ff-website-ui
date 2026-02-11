@@ -103,7 +103,6 @@ const isEvenRound = (roundNum: number) => {
   <h2>{{year}} Draft</h2>
   
   <body>
-        <div class="draft-wrapper">
         <div class="draft-board">
         <div class="team" v-for="pick in draftOrder" :key="pick.pick_num">
           {{ pick.team.first_name }}
@@ -125,7 +124,6 @@ const isEvenRound = (roundNum: number) => {
         </div>
         </template>
         </div>
-        </div>
   </body>
   
   </template>
@@ -139,15 +137,10 @@ p {
     margin-left: 5px;
   }
 
-.draft-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
 .draft-board {
     display: grid;
-    grid-template-columns: repeat(v-bind('teams'), 100px); /* 12 items in one row */
-    gap: 10px; /* Space between picks */
+    grid-template-columns: repeat(v-bind('teams'), 100px);
+    gap: 10px;
     padding: 10px;
     width: max-content;
     margin: auto;
@@ -155,25 +148,25 @@ p {
 }
 
 .pick {
-    background-color: white; /* White background for each pick */
-    border-radius: 15px; /* Rounded corners */
+    background-color: white;
+    border-radius: 15px;
     padding: 10px;
     height: 70px;
     padding-top: 17px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slight shadow for depth */
-    position: relative; /* Enable positioning */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
     text-align: center;
     font-size: 12px;
     color: black;
 }
 
 .team {
-    background-color: white; /* White background for each pick */
-    border-radius: 15px; /* Rounded corners */
+    background-color: white;
+    border-radius: 15px;
     padding: 8px;
     height: 50px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slight shadow for depth */
-    position: relative; /* Enable positioning */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
     text-align: center;
     font-size: 12px;
     color: black;
@@ -280,6 +273,31 @@ p {
     right: 9px;
     font-weight: bold;
     font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .draft-board {
+    grid-template-columns: repeat(v-bind('teams'), 70px);
+    gap: 10px;
+  }
+
+  .team {
+    font-size: 10px;
+  }
+
+  .pick {
+    font-size: 10px;
+    height: 60px;
+  }
+
+  .pick-number {
+    font-size: 8px;
+  }
+
+  .pos {
+    font-size: 8px;
+  }
+
 }
 
 </style>
