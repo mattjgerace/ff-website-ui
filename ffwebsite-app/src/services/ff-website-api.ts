@@ -125,10 +125,10 @@ class FFWebsiteAPI {
             case ("Top 15 Points Per Game Single Regular Season"): {
                 return this.#fetch(`matchups/records/top-years/?ppg=True&playoff=False`)
             }
-            case ("Top 15 Points For Single Postseason Season"): {
+            case ("Top 15 Points For Single Postseason"): {
                 return this.#fetch(`matchups/records/top-years/?playoff=True`)
             } 
-            case ("Top 15 Points Per Game Single Postseason Season"): {
+            case ("Top 15 Points Per Game Single Postseason"): {
                 return this.#fetch(`matchups/records/top-years/?ppg=True&playoff=True`)
             }  
             default: {
