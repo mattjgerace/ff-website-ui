@@ -1,17 +1,17 @@
 <template>
-
+  <body>
 <nav class="navbar navbar-expand-lg navbar-light thead">
   <a class="navbar-brand">LCDS '19 League Website</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" @click="changeComponent('Leaderboard')" :style="[component === 'Leaderboard' ? {'text-decoration': 'underline'} : {'text-decoration': ''}]">Leaderboard</a>
+        <a href="#" class="nav-link px-3" @click="changeComponent('Leaderboard')" :style="[component === 'Leaderboard' ? {'text-decoration': 'underline'} : {'text-decoration': ''}]">Leaderboard</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" @click="changeComponent('Records')" :style="[component === 'Records' ? {'text-decoration': 'underline'} : {'text-decoration': ''}]">Records</a>
+        <a href="#" class="nav-link px-3" @click="changeComponent('Records')" :style="[component === 'Records' ? {'text-decoration': 'underline'} : {'text-decoration': ''}]">Records</a>
       </li>
       <!-- <li class="nav-item">
         <a class="nav-link" @click="changeComponent('Opponents')" :style="[component === 'Opponents' ? {'text-decoration': 'underline'} : {'text-decoration': ''}]">Opponents</a>
@@ -30,6 +30,7 @@
     <MyRecords v-if="component === 'Records'"></MyRecords>
     <MyOpponents v-if="component === 'Opponents'"></MyOpponents>
   </div>
+  </body>
 </template>
 
 <script lang="ts">
@@ -57,7 +58,3 @@ export default defineComponent({
   }
 });
 </script>
-
-<style>
-
-</style>

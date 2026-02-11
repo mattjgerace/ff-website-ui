@@ -1,14 +1,3 @@
-function processResponse(response: Response) {
-    switch (response.status) {
-        case 401:
-        case 403:
-        case 200:
-            return response.json()
-        default:
-            return response.json()
-    }
-}
-
 class FFWebsiteAPI {
     headers!: { 'Content-Type': string;};
     apiHost!: string | undefined;
@@ -23,9 +12,57 @@ class FFWebsiteAPI {
         });
     }
 
+    processResponse(response: Response) {
+        switch (response.status) {
+            case 200:
+                return response.json()
+            case 201:
+                return response.json()
+            case 503:
+            case 504:{
+                const error: any = new Error('Service Unavailable');
+                error.status = response.status;
+                throw error;
+            }
+            default:
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+                return response.json();
+            }
+        }
+
     async #fetch(path: string, config={ headers: this.headers }) {
         await this.ready;
-        return fetch(`${this.apiHost}/api/${path}`, config).then(processResponse);
+        return fetch(`${this.apiHost}/api/${path}`, config).then(
+            response => this.processResponse(response)
+            ).catch(err => {
+            console.log(err.message);
+            if (err.message === 'Service Unavailable') {
+              return this.retry(() =>
+                fetch(`${this.apiHost}/api/${path}`, config).then(this.processResponse)
+              );
+            }
+            else {
+                throw err;
+            }
+        })
+    }
+
+    private delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async retry(request: () => Promise<Response>, maxRetries = 5, delayMs = 1000): Promise<any> {
+        console.log(`Attempt failed. Retrying in ${delayMs}ms... (Tries left: ${maxRetries})`);
+        await this.delay(delayMs);
+        return request().catch(err => {
+        if (maxRetries <= 0) {
+          console.error("Max retries exceeded, throwing error:", err);
+          throw err;
+        }
+        return this.retry(request, maxRetries - 1, delayMs);
+      });
     }
 
     async getSettings(season: string) {

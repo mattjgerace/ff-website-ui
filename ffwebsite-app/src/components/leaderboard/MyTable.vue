@@ -53,8 +53,8 @@ interface mdataInfo {
 
 
 const tabledata: Ref<Array<lbdataInfo> | null> = ref(null);
-
 const matchupsdata: Ref<Array<mdataInfo> | null> = ref(null);
+
 
 onMounted(() => {
   ffWebsiteAPI.ready = new Promise(resolve => {
@@ -492,87 +492,134 @@ const sortBackup = (a: lbdataInfo, b:lbdataInfo, primaryColumnName: keyof lbdata
     <thead class="thead">
       <tr>
         <th v-for="names in ((props.year=='All Time' || props.year=='Year:') ? colnames.combined : colnames.single)" :key="names.col" @click="(names.col !== 'Team') ? sortByColumn(names.sort) : ''" class="thead" scope="col">
-          {{ names.col }}
+          <div class="header-text">{{ names.col }} </div>
           <span v-if="sortColumn == names.sort && names.col != 'Team'" class="material-icons">{{
             arrowIconName
           }}</span>
-          <span v-else class="material-icons">sort</span>
+          <span v-else class="material-icons">
+            sort
+          </span>
         </th>
       </tr>
     </thead>
     <tbody v-if="tabledata != null && (props.year=='All Time' || props.year=='Year:')">
       <tr v-for="row in tabledata" :key="row.team_id">
-        <td>{{ Number(validate(row.championships).toString()) }}</td>
-        <td>{{ validate(row.avgstanding) }}</td>
-        <td>{{ (row.full_name !== undefined) ? `${(row.full_name)}`: "N/A" }}</td>
-        <td>{{ (props.per) ? calcWinningPerc(row) : (row.record != null) ? (row.record) : (`${validate(row.wins)}-${validate(row.losses)}`) }}</td>
-        <td>{{ (props.ppg) ? calcPointsPer(row, validate(row.pf)) : Number(validate(row.pf)).toFixed(2) }}</td>
-        <td>{{ (props.ppg) ? calcPointsPer(row, validate(row.pa)) : Number(validate(row.pa)).toFixed(2)  }}</td>
-        <td>{{ (props.ppg) ? addSign(Number(calcPointsPer(row, (validate(row.pf) - validate(row.pa))))) : addSign((validate(row.pf)- validate(row.pa))) }}</td>
-        <td>{{ validate(row.seasons_won) }}</td>
-        <td>{{ validate(row.weeks_won) }}</td>
-        <td>{{ validate(row.divisions_won) }}</td>
-        <td>{{ validate(row.avgdraft_pick)}}</td>
+        <td><div class="cell-text">{{ Number(validate(row.championships).toString()) }}</div></td>
+        <td><div class="cell-text">{{ validate(row.avgstanding) }}</div></td>
+        <td>
+          <div class="cell-text name-container">
+            <span class="first-name">{{ (row.first_name !== undefined) ? `${(row.first_name)}&nbsp;`: "N/A" }}</span>
+            <span class="last-name">{{ (row.last_name !== undefined) ? `${(row.last_name)}`: "N/A" }}</span>
+          </div>
+        </td>
+        <td><div class="cell-text">{{ (props.per) ? calcWinningPerc(row) : (row.record != null) ? (row.record) : (`${validate(row.wins)}-${validate(row.losses)}`) }}</div></td>
+        <td><div class="cell-text">{{ (props.ppg) ? calcPointsPer(row, validate(row.pf)) : Number(validate(row.pf)).toFixed(2) }}</div></td>
+        <td><div class="cell-text">{{ (props.ppg) ? calcPointsPer(row, validate(row.pa)) : Number(validate(row.pa)).toFixed(2)  }}</div></td>
+        <td><div class="cell-text">{{ (props.ppg) ? addSign(Number(calcPointsPer(row, (validate(row.pf) - validate(row.pa))))) : addSign((validate(row.pf)- validate(row.pa))) }}</div></td>
+        <td><div class="cell-text">{{ validate(row.seasons_won) }}</div></td>
+        <td><div class="cell-text">{{ validate(row.weeks_won) }}</div></td>
+        <td><div class="cell-text">{{ validate(row.divisions_won) }}</div></td>
+        <td><div class="cell-text">{{ validate(row.avgdraft_pick)}}</div></td>
       </tr>
     </tbody>
     <tbody v-else-if="tabledata != null">
       <tr v-for="row in tabledata" :key="row.team_id">
-        <td>{{ validate(row.standing) == 0 ? "-" : validate(row.standing)  }}</td>
-        <!-- <td v-if="props.year != 2019">{{ "Blue" }}</td> -->
-        <td>{{(row.full_name !== undefined) ? `${(row.full_name)}`: "N/A" }}</td>
-        <td>{{ (props.per) ? calcWinningPerc(row) : (row.record != null) ? (row.record) : (`${validate(row.wins)}-${validate(row.losses)}`) }}</td>
-        <td>{{ (row.division !== undefined) ? `${row.division} (${validate(row.division_standing)})` : "N/A" }}</td>
-        <td>{{ (props.ppg) ? calcPointsPer(row, validate(row.pf)) : Number(validate(row.pf)).toFixed(2) }}</td>
-        <td>{{ (props.ppg) ? calcPointsPer(row, validate(row.pa)) : Number(validate(row.pa)).toFixed(2)  }}</td>
-        <td>{{ (props.ppg) ? addSign(Number(calcPointsPer(row, (validate(row.pf) - validate(row.pa))))) : addSign((validate(row.pf)- validate(row.pa))) }}</td>
-        <td>{{ validate(row.weeks_won) }}</td>
-        <td>{{ validate(row.seed) == 0 ? "-" : validate(row.seed)}}</td>
-        <td>{{ validate(row.draft_pick) == 0 ? "-" : validate(row.draft_pick) }}</td>
+        <td><div class="cell-text">{{ validate(row.standing) == 0 ? "-" : validate(row.standing)  }}</div></td>
+        <td>
+          <div class="cell-text name-container">
+            <span class="first-name">{{ (row.first_name !== undefined) ? `${(row.first_name)}&nbsp;`: "N/A" }}</span>
+            <span class="last-name">{{ (row.last_name !== undefined) ? `${(row.last_name)}`: "N/A" }}</span>
+          </div>
+        </td>
+        <td><div class="cell-text">{{ (props.per) ? calcWinningPerc(row) : (row.record != null) ? (row.record) : (`${validate(row.wins)}-${validate(row.losses)}`) }}</div></td>
+        <td><div class="cell-text">{{ (row.division !== undefined) ? `${row.division} (${validate(row.division_standing)})` : "N/A" }}</div></td>
+        <td><div class="cell-text">{{ (props.ppg) ? calcPointsPer(row, validate(row.pf)) : Number(validate(row.pf)).toFixed(2) }}</div></td>
+        <td><div class="cell-text">{{ (props.ppg) ? calcPointsPer(row, validate(row.pa)) : Number(validate(row.pa)).toFixed(2)  }}</div></td>
+        <td><div class="cell-text">{{ (props.ppg) ? addSign(Number(calcPointsPer(row, (validate(row.pf) - validate(row.pa))))) : addSign((validate(row.pf)- validate(row.pa))) }}</div></td>
+        <td><div class="cell-text">{{ validate(row.weeks_won) }}</div></td>
+        <td><div class="cell-text">{{ validate(row.seed) == 0 ? "-" : validate(row.seed)}}</div></td>
+        <td><div class="cell-text">{{ validate(row.draft_pick) == 0 ? "-" : validate(row.draft_pick) }}</div></td>
       </tr>
     </tbody>
   </table>
 </template>
 
 <style scoped>
+
 .material-icons {
     vertical-align: -6px;
 }
 
 th {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-.select {
-  margin-bottom: 15px;
+th .header-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: clamp(15px, 1.1vw, 18px);
+  overflow: hidden;
+  line-height: 1.2;
 }
-#year {
-  margin-right: 5px;
+
+.cell-text {
+  font-size: clamp(14px, 1.1vw, 16px);
+  line-height: 1.5;
+  white-space: nowrap;
 }
-#stats {
-  margin-right: 5px;
+
+.name-container {
+    font-size: clamp(14px, 1.1vw, 16px);
+    display: flex;
+    flex-direction: row;
+  }
+
+.first-name, .last-name {
+  font-size: clamp(14px, 1.1vw, 16px);
 }
-#avg {
-  font-size:12px;
-  padding-bottom: -5px;
-  width:124px;
-}
-#perc {
-  font-size:12px;
-  padding-bottom: -5px;
-  width: 90px;
-  margin-left: 5px;
-}
-#draft {
-height:35px;
-width:200px;
-font-size: 15px;
-float:right;
-}
-#brac {
-height:35px;
-width:200px;
-font-size: 15px;
-float:right;
+
+@media (max-width: 600px) {
+  .table th:nth-child(8),
+  .table td:nth-child(8),
+  .table th:nth-child(9),
+  .table td:nth-child(9),
+  .table th:nth-child(11),
+  .table td:nth-child(11),
+  .table th:nth-child(7),
+  .table td:nth-child(7) {
+    display: none;
+  }
+
+  .material-icons {
+    font-size: 0.9rem;
+  }
+
+  th .header-text {
+    font-size: clamp(12px, 2vw, 14px);
+  }
+
+  .cell-text {
+    font-size: clamp(10px, 2.2vw, 12px);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1.1;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .name-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0;
+    line-height: 1.5;
+  }
+
+  .first-name, .last-name{
+    font-size: clamp(10px, 2.2vw, 12px);
+  }
+
 }
 
 </style>

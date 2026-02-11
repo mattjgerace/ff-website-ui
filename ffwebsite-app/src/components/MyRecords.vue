@@ -29,8 +29,8 @@ let records: Ref<Array<rdata>> = ref([
     {record: "Top 50 Highest Single Game Scores"},
     {record: "Top 15 Points For Single Regular Season"},
     {record: "Top 15 Points Per Game Single Regular Season"},
-    {record: "Top 15 Points For Single Postseason Season"},
-    {record: "Top 15 Points Per Game Single Postseason Season"},
+    {record: "Top 15 Points For Single Postseason"},
+    {record: "Top 15 Points Per Game Single Postseason"},
 ])
 
 
@@ -104,11 +104,26 @@ function switchTable(event: Event) {
 </template>
 
 <style scoped>
-.rhead {
-    margin-bottom: 25px;
-}
+  .rhead {
+      margin-bottom: 25px;
+  }
 
-#next {
-    margin-left: 10px;
-}
+  #next {
+      margin-left: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .rhead {
+      font-size: 22px;
+    }
+    td {
+      font-size: 12px
+    }
+    #next {
+      font-size: 14px;
+    }
+    .thead {
+      font-size: 14px;
+    }
+  }
 </style>

@@ -116,8 +116,8 @@ const isEvenRound = (roundNum: number) => {
                                   'pick-qb': pick.player.position==='QB',
                                   'pick-k': pick.player.position==='K',
                                   'pick-d': pick.player.position==='DEF'}" 
-                                  v-for="pick in round" :key="pick.pick_num">
-          <span class="pick-number">{{pick.round_num}}.{{isEvenRound(Number(round_index)+1) ? Number(round_index)+1 : teams-Number(round_index)}} ({{pick.pick_num}})</span>{{pick.player.first_name}}<br>{{pick.player.last_name}}
+                                  v-for="(pick, pick_index) in round" :key="pick.pick_num">
+          <span class="pick-number">{{pick.round_num}}.{{isEvenRound(Number(round_index)+1) ? Number(pick_index)+1 : teams-Number(pick_index)}} ({{pick.pick_num}})</span>{{pick.player.first_name}}<br>{{pick.player.last_name}}
           <span class="pos">{{pick.player.position}}</span>
           <!-- <span :class="checkClass(index, index2)"></span> -->
           <!-- ARROW Direction <span :class="isEvenRound(index+1) ? ((index2==11) ? 'down-arrow': 'side-arrow') : (index2==0 ? 'down-arrow' : 'side-arrow')">{{(isEvenRound(index+1)) ? (index2==11 ? "&#8595;" : "&#8594;") : (index2==0 ? "&#8595;" : "&#8592;")}}</span> -->
@@ -136,36 +136,37 @@ h2 {
 p {
     margin-left: 5px;
   }
+
 .draft-board {
     display: grid;
-    grid-template-columns: repeat(v-bind('teams'), 1fr); /* 12 items in one row */
-    gap: 10px; /* Space between picks */
+    grid-template-columns: repeat(v-bind('teams'), 100px);
+    gap: 10px;
     padding: 10px;
-    max-width: 100%; /* Ensure it spans the full width */
+    width: max-content;
     margin: auto;
     grid-row: 1;
 }
 
 .pick {
-    background-color: white; /* White background for each pick */
-    border-radius: 15px; /* Rounded corners */
+    background-color: white;
+    border-radius: 15px;
     padding: 10px;
     height: 70px;
     padding-top: 17px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slight shadow for depth */
-    position: relative; /* Enable positioning */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
     text-align: center;
     font-size: 12px;
     color: black;
 }
 
 .team {
-    background-color: white; /* White background for each pick */
-    border-radius: 15px; /* Rounded corners */
+    background-color: white;
+    border-radius: 15px;
     padding: 8px;
     height: 50px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slight shadow for depth */
-    position: relative; /* Enable positioning */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
     text-align: center;
     font-size: 12px;
     color: black;
@@ -272,6 +273,31 @@ p {
     right: 9px;
     font-weight: bold;
     font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .draft-board {
+    grid-template-columns: repeat(v-bind('teams'), 70px);
+    gap: 10px;
+  }
+
+  .team {
+    font-size: 10px;
+  }
+
+  .pick {
+    font-size: 10px;
+    height: 60px;
+  }
+
+  .pick-number {
+    font-size: 8px;
+  }
+
+  .pos {
+    font-size: 8px;
+  }
+
 }
 
 </style>
